@@ -1,0 +1,27 @@
+name: JEOGAZ Windows EXE oluştur
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Kaynak kodu al
+        uses: actions/checkout@v4
+      - name: .NET kur
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: EXE yayınla
+        run: dotnet publish JEOGAZ_Takip.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+      - name: Çıktıyı paketle
+        run: Compress-Archive -Path publish\* -DestinationPath JEOGAZ_Takip_Windows.zip
+      - name: EXE paketini yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: JEOGAZ_Takip_Windows
+          path: JEOGAZ_Takip_Windows.zip
+          retention-days: 30
